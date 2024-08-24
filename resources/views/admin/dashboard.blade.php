@@ -1,1 +1,1 @@
-dashboard
+<a href="{{route('adminlogout')}}">Logout</a>

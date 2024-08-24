@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -12,19 +15,19 @@ class UserController extends Controller
 
     public function register(Request $request) {
         $request->validate([
-            'username' => 'required',
+            'name' => 'required',
             'email' => 'required|email|unique:admin',
             'password' => 'required|min:6',
         ]);
-        $admin = Admin::create([
-            'username' => $request->username,
+        $user = User::create([
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        if($admin) {
-            return redirect('/adminlogin')->with('success', 'Registration successful! Please log in.');
+        if($user) {
+            return redirect('/login')->with('success', 'Registration successful! Please log in.');
         }
-        return redirect('/adminregister')->with('error', 'Failed to register account.');
+        return redirect('/register')->with('error', 'Failed to register account.');
     }
 
     public function loginpage() {
@@ -39,12 +42,16 @@ class UserController extends Controller
 
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
-            return redirect()->intended('/');
+            return redirect()->intended('/mainpage');
         }
-        return redirect('/dashboard')->with('error', 'Invalid credentials. Please try again.');
+        return redirect('/login')->with('error', 'Invalid credentials. Please try again.');
     }
 
     public function mainpage() {
         return view('font-page.index');
     }
+
+    public function logout(Request $request) {
+        return redirect('login')->with(Auth::logout());
+      }
 }
